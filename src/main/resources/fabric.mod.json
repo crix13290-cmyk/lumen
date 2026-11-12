@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "lumen",
+  "version": "${version}",
+  "name": "Lumen",
+  "description": "Clean visuals client: Spotify lyrics in the air, hit colours, glass-clean menu.",
+  "authors": ["Ole"],
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": { "client": ["dev.lumen.LumenClient"] },
+  "mixins": ["lumen.mixins.json"],
+  "depends": { "fabricloader": ">=0.18.0", "fabric-api": "*" }
+}

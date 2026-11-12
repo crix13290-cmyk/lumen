@@ -1,0 +1,4 @@
+{ "providers": [
+  { "type": "ttf", "file": "lumen:clean.ttf", "shift": [0, 0], "size": 11.0, "oversample": 8.0 },
+  { "type": "reference", "id": "minecraft:default" }
+] }
