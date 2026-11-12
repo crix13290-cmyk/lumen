@@ -35,7 +35,7 @@ public final class LyricsHud {
     public static void render(GuiGraphicsExtractor g, float partialTick) {
         if (!Modules.LYRICS.enabled) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null) return;
         if (!SpotifyPlayer.isPlaying()) return;
         List<LyricLine> lines = LyricsProvider.lines;
         if (lines.isEmpty()) return;
