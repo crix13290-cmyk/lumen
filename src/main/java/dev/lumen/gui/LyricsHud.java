@@ -5,7 +5,7 @@ import dev.lumen.lyrics.LyricLine;
 import dev.lumen.lyrics.LyricsProvider;
 import dev.lumen.spotify.SpotifyPlayer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
@@ -32,7 +32,7 @@ public final class LyricsHud {
         anchorSet = true;
     }
 
-    public static void render(GuiGraphics g, float partialTick) {
+    public static void render(GuiGraphicsExtractor g, float partialTick) {
         if (!Modules.LYRICS.enabled) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.options.hideGui) return;
@@ -106,7 +106,7 @@ public final class LyricsHud {
         return t;
     }
 
-    private static void drawKaraoke(GuiGraphics g, String text, int font, float cx, float cy, float scale,
+    private static void drawKaraoke(GuiGraphicsExtractor g, String text, int font, float cx, float cy, float scale,
                                     long now, long start, long end, int full, int dim, boolean glow) {
         String[] words = text.trim().split("\\s+");
         float[][] t = wordTimes(words);
@@ -127,7 +127,7 @@ public final class LyricsHud {
         }
     }
 
-    private static void drawSingleWord(GuiGraphics g, String text, int font, float cx, float cy, float scale,
+    private static void drawSingleWord(GuiGraphicsExtractor g, String text, int font, float cx, float cy, float scale,
                                        long now, long start, long end, float alpha, int rgb, boolean glow) {
         String[] words = text.trim().split("\\s+");
         float[][] t = wordTimes(words);

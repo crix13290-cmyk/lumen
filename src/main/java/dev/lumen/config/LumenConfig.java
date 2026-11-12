@@ -1,7 +1,7 @@
 package dev.lumen.config;
 
 import com.google.gson.*;
-import dev.lumen.module.Module;
+import dev.lumen.module.Feature;
 import dev.lumen.module.ModuleManager;
 import dev.lumen.module.Setting;
 import net.fabricmc.loader.api.FabricLoader;
@@ -25,7 +25,7 @@ public final class LumenConfig {
             if (root.has("spotifyClientId")) spotifyClientId = root.get("spotifyClientId").getAsString();
             if (root.has("spotifyRefreshToken")) spotifyRefreshToken = root.get("spotifyRefreshToken").getAsString();
             JsonObject mods = root.has("modules") ? root.getAsJsonObject("modules") : new JsonObject();
-            for (Module m : ModuleManager.ALL) {
+            for (Feature m : ModuleManager.ALL) {
                 if (!mods.has(m.name)) continue;
                 JsonObject o = mods.getAsJsonObject(m.name);
                 if (o.has("enabled")) { m.enabled = o.get("enabled").getAsBoolean(); m.anim = m.enabled ? 1f : 0f; }
@@ -45,7 +45,7 @@ public final class LumenConfig {
             root.addProperty("spotifyClientId", spotifyClientId);
             root.addProperty("spotifyRefreshToken", spotifyRefreshToken);
             JsonObject mods = new JsonObject();
-            for (Module m : ModuleManager.ALL) {
+            for (Feature m : ModuleManager.ALL) {
                 JsonObject o = new JsonObject();
                 o.addProperty("enabled", m.enabled);
                 JsonObject s = new JsonObject();

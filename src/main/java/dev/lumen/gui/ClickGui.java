@@ -6,7 +6,7 @@ import dev.lumen.module.*;
 import dev.lumen.spotify.SpotifyAuth;
 import dev.lumen.spotify.SpotifyPlayer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -23,7 +23,7 @@ public class ClickGui extends Screen {
     private static final String SPOTIFY = "__spotify__";
 
     private int category = 0;
-    private Module selected = null;
+    private Feature selected = null;
     private boolean spotifyOpen = false;
     private float drawer = 0f;
     private EditBox clientIdBox;
@@ -50,7 +50,7 @@ public class ClickGui extends Screen {
         addRenderableWidget(clientIdBox);
     }
 
-    @Override public void renderBackground(GuiGraphics g, int mx, int my, float delta) { /* own backdrop, no vanilla blur */ }
+    public void extractBackground(GuiGraphicsExtractor g, int mx, int my, float delta) { /* own backdrop, no vanilla blur */ }
     @Override public boolean isPauseScreen() { return false; }
     @Override public void removed() { LumenConfig.save(); }
 
@@ -59,7 +59,7 @@ public class ClickGui extends Screen {
     private Component t(String s) { return Fonts.text(s, Modules.UI_FONT.index); }
 
     @Override
-    public void render(GuiGraphics g, int mx, int my, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
         hits.clear();
         float step = Math.min(1f, delta * 0.35f + 0.12f);
         g.fill(0, 0, width, height, 0xB0070510);
@@ -89,7 +89,7 @@ public class ClickGui extends Screen {
         }
 
         // module cards
-        List<Module> mods = ModuleManager.inCategory(ModuleManager.CATEGORIES[category]);
+        List<Feature> mods = ModuleManager.inCategory(ModuleManager.CATEGORIES[category]);
         int cols = 3;
         float pad = 14, gap = 8, top = py + 38;
         float gridW = (spotifyOpen || selected != null) ? pw * 0.45f - pad : pw - pad * 2;
@@ -103,7 +103,7 @@ public class ClickGui extends Screen {
             float cx = px + pad + (n % cols) * (cw + gap), cy = top + (n / cols) * (chh + gap);
             n++;
             if (o == SPOTIFY) { drawSpotifyCard(g, cx, cy, cw, chh, mx, my, step); continue; }
-            Module m = (Module) o;
+            Feature m = (Feature) o;
             drawCard(g, m, cx, cy, cw, chh, mx, my, step);
         }
 
@@ -121,10 +121,10 @@ public class ClickGui extends Screen {
         }
 
         Draw.text(g, t("Click = toggle  |  Right-click = settings  |  Esc = close"), px + 14, py + ph - 11, 0x80FFFFFF, 0.7f, false);
-        super.render(g, mx, my, delta); // renders the text box
+        if (clientIdBox.visible) clientIdBox.extractRenderState(g, mx, my, delta); // text box (not calling super: it would draw the blur over our menu)
     }
 
-    private void drawCard(GuiGraphics g, Module m, float x, float y, float w, float h, int mx, int my, float step) {
+    private void drawCard(GuiGraphicsExtractor g, Feature m, float x, float y, float w, float h, int mx, int my, float step) {
         boolean hov = mx >= x && mx <= x + w && my >= y && my <= y + h;
         m.hover = Draw.approach(m.hover, hov ? 1f : 0f, step);
         m.anim = Draw.approach(m.anim, m.enabled ? 1f : 0f, step);
@@ -146,13 +146,13 @@ public class ClickGui extends Screen {
         hits.add(new Hit(x, y, w, h, m::toggle, () -> { selected = m; spotifyOpen = false; }));
     }
 
-    private void drawSwitch(GuiGraphics g, float x, float y, float anim) {
+    private void drawSwitch(GuiGraphicsExtractor g, float x, float y, float anim) {
         int acc = accent();
         Draw.roundRect(g, x, y, 22, 12, 6, Draw.mix(0xFF2A2440, 0xFF000000 | acc, anim));
         Draw.roundRect(g, x + 1.5f + anim * 10f, y + 1.5f, 9, 9, 4.5f, 0xFFFFFFFF);
     }
 
-    private void drawSpotifyCard(GuiGraphics g, float x, float y, float w, float h, int mx, int my, float step) {
+    private void drawSpotifyCard(GuiGraphicsExtractor g, float x, float y, float w, float h, int mx, int my, float step) {
         boolean hov = mx >= x && mx <= x + w && my >= y && my <= y + h;
         int acc = accent();
         if (hov) Draw.glow(g, x, y, w, h, radius(), acc, 0.4f);
@@ -165,7 +165,7 @@ public class ClickGui extends Screen {
         hits.add(new Hit(x, y, w, h, () -> { spotifyOpen = true; selected = null; }, () -> { spotifyOpen = true; selected = null; }));
     }
 
-    private void drawSpotifyPanel(GuiGraphics g, float x, float y, float w, float h, int mx, int my) {
+    private void drawSpotifyPanel(GuiGraphicsExtractor g, float x, float y, float w, float h, int mx, int my) {
         Draw.text(g, t("Spotify"), x + 10, y + 9, 0xFFFFFFFF, 1f, false);
         Draw.text(g, t("1) developer.spotify.com/dashboard > Create app"), x + 10, y + 26, 0xB0FFFFFF, 0.65f, false);
         Draw.text(g, t("2) Redirect URI: " + SpotifyAuth.REDIRECT), x + 10, y + 36, 0xB0FFFFFF, 0.65f, false);
@@ -183,7 +183,7 @@ public class ClickGui extends Screen {
         Draw.text(g, t("Lyrics: " + dev.lumen.lyrics.LyricsProvider.state), x + 10, by + 48, 0xB0FFFFFF, 0.7f, false);
     }
 
-    private void button(GuiGraphics g, float x, float y, float w, float h, String label, int mx, int my, Runnable r) {
+    private void button(GuiGraphicsExtractor g, float x, float y, float w, float h, String label, int mx, int my, Runnable r) {
         boolean hov = mx >= x && mx <= x + w && my >= y && my <= y + h;
         Draw.roundRect(g, x, y, w, h, radius() * 0.8f, hov ? (0xFF000000 | accent()) : 0x30FFFFFF);
         Component c = t(label);
@@ -191,7 +191,7 @@ public class ClickGui extends Screen {
         hits.add(new Hit(x, y, w, h, r, null));
     }
 
-    private void drawSettings(GuiGraphics g, Module m, float x, float y, float w, float h, int mx, int my, float step) {
+    private void drawSettings(GuiGraphicsExtractor g, Feature m, float x, float y, float w, float h, int mx, int my, float step) {
         Draw.text(g, t(m.name), x + 10, y + 9, 0xFFFFFFFF, 1f, false);
         float cy = y + 26;
         for (Setting s : m.settings) {
